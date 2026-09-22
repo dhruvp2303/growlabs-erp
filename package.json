@@ -1,0 +1,16 @@
+{
+  "name": "growlabs-erp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GrowLabs - AI-Powered Personalized Multi-Tenant ERP SaaS Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "start": "npm --prefix frontend run start",
+    "dev:backend": "cd backend && php artisan serve",
+    "docker:up": "docker compose -f infrastructure/docker/docker-compose.yml up -d",
+    "docker:down": "docker compose -f infrastructure/docker/docker-compose.yml down"
+  }
+}

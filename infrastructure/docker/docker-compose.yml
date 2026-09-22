@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: growlabs_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: growlabs_erp
+      POSTGRES_USER: growlabs_user
+      POSTGRES_PASSWORD: growlabs_secret_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - growlabs_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U growlabs_user -d growlabs_erp"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: growlabs_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - growlabs_net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: ../infrastructure/docker/Dockerfile.backend
+    container_name: growlabs_backend
+    restart: unless-stopped
+    environment:
+      APP_NAME: "GrowLabs ERP"
+      APP_ENV: local
+      APP_KEY: "base64:randomGeneratedKeyForDevEnvironment123="
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: pgsql
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: growlabs_erp
+      DB_USERNAME: growlabs_user
+      DB_PASSWORD: growlabs_secret_password
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      CACHE_STORE: redis
+      QUEUE_CONNECTION: redis
+      SESSION_DRIVER: redis
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - growlabs_net
+
+  frontend:
+    build:
+      context: ../..
+      dockerfile: ./infrastructure/docker/Dockerfile.frontend
+    container_name: growlabs_frontend
+    restart: unless-stopped
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - growlabs_net
+
+networks:
+  growlabs_net:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
