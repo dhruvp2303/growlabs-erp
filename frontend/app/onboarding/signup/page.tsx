@@ -12,11 +12,11 @@ import { useOnboarding, type CompanySize } from '@/lib/onboarding/store'
 import { cn } from '@/lib/utils'
 
 const sizes: { value: CompanySize; label: string }[] = [
-  { value: '1-10', label: '1–10' },
-  { value: '11-50', label: '11–50' },
-  { value: '51-200', label: '51–200' },
-  { value: '201-1000', label: '201–1000' },
-  { value: '1000+', label: '1000+' },
+  { value: '1-5 (Micro/Solo)', label: '1–5 employees' },
+  { value: '6-20 (Small Team)', label: '6–20 employees' },
+  { value: '21-100 (Growing)', label: '21–100 employees' },
+  { value: '101-500 (Mid-Enterprise)', label: '101–500 employees' },
+  { value: '500+ (Industrial Scale)', label: '500+ enterprise' },
 ]
 
 const roles = ['Founder / CEO', 'Operations', 'Finance', 'Supply Chain', 'IT / Systems', 'Other']
