@@ -4,6 +4,7 @@ import { Inter, Manrope } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { OnboardingProvider } from '@/lib/onboarding/store'
 import { PersonalizationProvider } from '@/lib/personalization/personalization-provider'
+import { CursorFollower } from '@/components/animated/cursor-follower'
 import './globals.css'
 
 const inter = Inter({
@@ -46,7 +47,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${manrope.variable} bg-background`}>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased selection:bg-primary/30 selection:text-white">
+        <CursorFollower />
         <OnboardingProvider>
           <PersonalizationProvider>
             {children}

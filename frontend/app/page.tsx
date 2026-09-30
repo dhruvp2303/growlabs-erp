@@ -7,6 +7,7 @@ import { HowItWorks } from '@/components/landing/how-it-works'
 import { Industries } from '@/components/landing/industries'
 import { Pricing } from '@/components/landing/pricing'
 import { Testimonials } from '@/components/landing/testimonials'
+import { Faq } from '@/components/landing/faq'
 import { FinalCta } from '@/components/landing/final-cta'
 import { Footer } from '@/components/landing/footer'
 
@@ -23,6 +24,7 @@ export default function HomePage() {
         <Industries />
         <Pricing />
         <Testimonials />
+        <Faq />
         <FinalCta />
       </main>
       <Footer />

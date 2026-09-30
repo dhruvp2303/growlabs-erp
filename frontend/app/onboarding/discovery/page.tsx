@@ -4,54 +4,92 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, Loader2, Check } from 'lucide-react'
+import {
+  ArrowLeft,
+  ArrowRight,
+  Loader2,
+  Check,
+  Store,
+  ShoppingBag,
+  Building,
+  Shirt,
+  Utensils,
+  Wrench,
+  Truck,
+  Factory,
+  Pill,
+  Car,
+  Tractor,
+  HardHat,
+  Gem,
+  BookOpen,
+  Crown,
+  Camera,
+  PartyPopper,
+  Sparkles,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Logo } from '@/components/brand/logo'
 import { BrandAside } from '@/components/onboarding/brand-aside'
 import { useOnboarding, type IndustryId, type Priority } from '@/lib/onboarding/store'
 import { cn } from '@/lib/utils'
 
-const industries: { id: IndustryId; label: string; description: string }[] = [
-  { id: 'manufacturing', label: 'Manufacturing', description: 'Production, BOM, quality control' },
-  { id: 'distribution', label: 'Distribution', description: 'Warehousing, logistics, wholesale' },
-  { id: 'retail', label: 'Retail', description: 'Multi-location, POS, inventory' },
-  { id: 'agriculture', label: 'Agriculture', description: 'Farming operations, equipment' },
-  { id: 'construction', label: 'Construction', description: 'Projects, equipment, subcontractors' },
-  { id: 'services', label: 'Services', description: 'Field service, technicians, billing' },
+const industries: { id: IndustryId; label: string; description: string; icon: any; tag: string }[] = [
+  { id: 'retail_shop', label: 'Small Retail Shop', description: 'Inventory, fast POS billing, purchases, expenses & customer ledger', icon: Store, tag: 'Kirana / Local Shop' },
+  { id: 'supermarket', label: 'Supermarket & Grocery', description: 'Barcode scanning, POS, suppliers, batch expiry dates & analytics', icon: ShoppingBag, tag: 'High-Volume POS' },
+  { id: 'mall_store', label: 'Mall Store / Chain', description: 'Multi-outlet stock sync, staff management, loyalty & expense tracking', icon: Building, tag: 'Multi-Store' },
+  { id: 'clothing', label: 'Clothing & Fashion Store', description: 'Size/Color/Fabric matrix, barcode tags, POS, discounts & returns', icon: Shirt, tag: 'Variant Matrix' },
+  { id: 'costume_rental', label: 'Costume & Bridal Dress Rental', description: 'Bridal wear, suits, security deposit hold, return condition check & dry-cleaning', icon: Crown, tag: 'Fashion Rental' },
+  { id: 'library', label: 'Library & Book Rental', description: 'ISBN barcode catalog, member card check-in/out, due date return alarms & fines', icon: BookOpen, tag: 'Book Circulation' },
+  { id: 'equipment_rental', label: 'Equipment & Camera Rental', description: 'Camera gear, sound systems, tools, daily/hourly rent timers & deposit escrow', icon: Camera, tag: 'Gear & Tools' },
+  { id: 'event_rental', label: 'Event, Tent & Party Rental', description: 'Tents, sound, lights, wedding furniture, dispatch schedule & event pickup', icon: PartyPopper, tag: 'Event Logistics' },
+  { id: 'restaurant', label: 'Restaurant & F&B', description: 'Recipe ingredient tracking, waste logs, daily cashflow & table/POS orders', icon: Utensils, tag: 'Recipe BOM' },
+  { id: 'services', label: 'Service & Repair Shop', description: 'Appointments, customer tickets, technician labor, parts stock & invoices', icon: Wrench, tag: 'Field Tech & Jobs' },
+  { id: 'distribution', label: 'Distributor & Wholesaler', description: 'Multi-warehouse, wholesale orders, fleet dispatch, supplier POs & B2B GST', icon: Truck, tag: 'Logistics Hub' },
+  { id: 'manufacturing', label: 'Manufacturer & Factory', description: 'Multi-level BOM, raw materials, production line scheduling & QC inspection', icon: Factory, tag: 'Smart Factory' },
+  { id: 'pharmacy', label: 'Pharmacy & Medical Store', description: 'Drug salt matrix, batch expiry alarms, supplier reordering & doctor Rx logs', icon: Pill, tag: 'Pharma / Batch QC' },
+  { id: 'automobile', label: 'Automobile & Spare Parts', description: 'Make/Model part fitment matrix, job cards, mechanic labor & warranty tracking', icon: Car, tag: 'Auto & Fitment' },
+  { id: 'agriculture', label: 'Agriculture & Agro-Trading', description: 'Crop harvest batches, fertilizer inputs, weighbridge logs & farmer payouts', icon: Tractor, tag: 'Agro & Commodities' },
+  { id: 'jewelry', label: 'Jewelry & Luxury Goods', description: 'Gold/Silver live rate calculations, making charges, purity certificates & vault stock', icon: Gem, tag: 'Purity & Bullion' },
+  { id: 'construction', label: 'Construction & Contracting', description: 'Job costing, subcontractor draw approvals, site material dispatch & equipment logs', icon: HardHat, tag: 'Project Costing' },
+  { id: 'other', label: '✨ Other / Custom Business', description: 'Custom manufacturing, hybrid services, niche retail or proprietary workflows', icon: Sparkles, tag: 'Custom Architecture' },
 ]
 
 const painPoints: string[] = [
-  'Inventory management & stockouts',
-  'Production delays',
-  'Procurement bottlenecks',
-  'Poor visibility into operations',
-  'Manual data entry & errors',
-  'Supplier delays',
-  'Cash flow problems',
-  'Quality issues',
-  'Forecasting accuracy',
-  'Department communication',
+  'Stockouts & not knowing exact quantities in real time',
+  'Tracking items on rent, overdue returns & missing deposits',
+  'Slow customer checkout & long billing queues',
+  'Manual spreadsheet entry & bookkeeping mistakes',
+  'Expired stock, shrinkage & ingredient wastage',
+  'Tracking inventory across multiple stores or warehouses',
+  'Chasing unpaid customer invoices & supplier credit',
+  'Difficulty managing product variants (Sizes, Colors, Batches, ISBNs)',
+  'Missing raw material or components when starting orders',
+  'Lack of clear daily profit & expense visibility',
 ]
 
 const priorities: { id: Priority; label: string; description: string }[] = [
-  { id: 'inventory', label: 'Inventory', description: 'Get control of stock levels' },
-  { id: 'cost', label: 'Cost Control', description: 'Reduce waste and expenses' },
-  { id: 'growth', label: 'Growth', description: 'Scale operations efficiently' },
-  { id: 'compliance', label: 'Compliance', description: 'Track and audit everything' },
-  { id: 'visibility', label: 'Visibility', description: 'Real-time business insights' },
-  { id: 'automation', label: 'Automation', description: 'Reduce manual work' },
+  { id: 'pos', label: 'Fast POS & Billing', description: 'Speed up customer checkout and print/WhatsApp invoices' },
+  { id: 'rentals', label: 'Rental & Asset Check-In/Out', description: 'Manage security deposits, return dates, late fees & damage inspections' },
+  { id: 'inventory', label: 'Live Stock Control', description: 'Real-time quantities, low-stock alarms & barcode tags' },
+  { id: 'cost', label: 'Expense & Waste Reduction', description: 'Cut shrinkage, expired goods and unnecessary spending' },
+  { id: 'recipes', label: 'Recipe / BOM Breakdown', description: 'Auto-deduct raw materials or ingredients as orders sell' },
+  { id: 'visibility', label: 'Daily Profit Insights', description: 'Clear dashboards for revenue, cash in hand & margins' },
+  { id: 'automation', label: 'AI Reordering & Reminders', description: 'Auto-generate supplier POs and payment reminders' },
+  { id: 'custom', label: 'Bespoke Custom Features', description: 'Custom data fields, unique workflows & proprietary triggers' },
 ]
 
 const currentTools: string[] = [
-  'Excel spreadsheets',
-  'QuickBooks / Xero',
+  'Paper notebooks / Register book',
+  'Excel / Google Sheets',
+  'Vyapar / Tally / QuickBooks',
+  'Petpooja / Posist (F&B POS)',
   'Shopify / WooCommerce',
-  'Custom built system',
-  'Nothing structured',
-  'Multiple disconnected tools',
+  'Multiple disconnected apps',
+  'Nothing structured yet (Fresh Setup)',
 ]
 
-const steps = ['Industry', 'Specifications', 'Challenges', 'Priorities', 'Operations']
+const steps = ['Business Type', 'Store Specifics', 'Challenges', 'Operations']
 
 export default function DiscoveryPage() {
   const router = useRouter()
@@ -63,43 +101,23 @@ export default function DiscoveryPage() {
 
   function validateStep(): boolean {
     const e: Record<string, string> = {}
-    
+
     if (step === 0) {
-      if (!state.industry) e.industry = 'Select your industry'
-    }
-    
-    if (step === 1) {
-      // Validate dynamic industry specs
-      if (state.industry === 'manufacturing') {
-        if (!state.industryDetails.manufactureType?.trim()) {
-          e.manufactureType = 'Describe what you manufacture'
-        }
-      }
-      if (state.industry === 'retail') {
-        if (!state.industryDetails.retailChannel) {
-          e.retailChannel = 'Select your retail channel'
-        }
-      }
-      if (state.industry === 'services') {
-        if (!state.industryDetails.billingModel) {
-          e.billingModel = 'Select your billing model'
-        }
+      if (!state.industry) e.industry = 'Select your business type'
+      if (state.industry === 'other' && !state.customIndustryName?.trim()) {
+        e.customIndustryName = 'Please enter your business or industry name'
       }
     }
 
     if (step === 2) {
       if (state.painPoints.length === 0) e.painPoints = 'Select at least one challenge'
-      if (!state.goals.trim()) e.goals = 'Tell us your biggest challenge'
+      if (!state.goals.trim()) e.goals = 'Tell us your #1 daily business struggle'
     }
 
     if (step === 3) {
-      if (state.priorities.length === 0) e.priorities = 'Select at least one priority'
-    }
-
-    if (step === 4) {
-      if (!state.currentTools.length) e.currentTools = 'Select your current tools'
-      if (!state.monthlyOrders.trim()) e.monthlyOrders = 'Enter monthly volume'
-      if (!state.teamCount.trim()) e.teamCount = 'Enter team size'
+      if (!state.currentTools.length) e.currentTools = 'Select your current tools or register'
+      if (!state.monthlyOrders.trim()) e.monthlyOrders = 'Enter approx monthly bills/orders'
+      if (!state.teamCount.trim()) e.teamCount = 'Enter staff/team size'
     }
 
     setErrors(e)
@@ -130,13 +148,13 @@ export default function DiscoveryPage() {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,440px)_1fr]">
       <BrandAside
-        eyebrow="Business Discovery"
-        title="Tell us how your business works"
+        eyebrow="Universal ERP Engine"
+        title="Bespoke ERP for Any Business Size"
         points={[
-          'Industry-specific questions',
-          'Understand your challenges',
-          'Map your priorities',
-          'AI learns your operations',
+          '15-Day full-access free trial',
+          'Retail, rentals, libraries, and factories',
+          'Phone & tablet camera barcode billing',
+          'AI custom feature builder for unique needs',
         ]}
       />
 
@@ -147,24 +165,26 @@ export default function DiscoveryPage() {
           </Link>
         </div>
 
-        <div className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center py-8">
+        <div className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center py-6">
           {/* Stepper */}
-          <div className="mb-8 flex items-center gap-2">
+          <div className="mb-6 flex items-center gap-2">
             {steps.map((label, i) => (
               <div key={label} className="flex flex-1 items-center gap-2">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <span
                     className={cn(
-                      'inline-flex size-7 items-center justify-center rounded-full text-xs font-semibold transition-colors',
+                      'inline-flex size-6.5 items-center justify-center rounded-full text-xs font-semibold transition-colors',
                       i < step && 'bg-primary text-primary-foreground',
                       i === step && 'border-2 border-primary text-primary',
                       i > step && 'border border-border text-muted-foreground',
                     )}
                   >
-                    {i < step ? <Check className="size-3.5" /> : i + 1}
+                    {i < step ? <Check className="size-3" /> : i + 1}
                   </span>
-                  <span className="hidden text-xs font-medium sm:inline" 
-                    style={{color: i <= step ? 'currentColor' : 'var(--muted-foreground)'}}>
+                  <span
+                    className="hidden text-xs font-medium sm:inline"
+                    style={{ color: i <= step ? 'currentColor' : 'var(--muted-foreground)' }}
+                  >
                     {label}
                   </span>
                 </div>
@@ -184,20 +204,20 @@ export default function DiscoveryPage() {
             <motion.div
               key={step}
               custom={dir}
-              initial={{ opacity: 0, x: dir * 24 }}
+              initial={{ opacity: 0, x: dir * 20 }}
               animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: dir * -24 }}
-              transition={{ duration: 0.28, ease: 'easeOut' }}
+              exit={{ opacity: 0, x: dir * -20 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
             >
-              {/* Step 0: Industry */}
+              {/* Step 0: Business Type */}
               {step === 0 && (
                 <div>
-                  <h1 className="font-display text-2xl font-bold">What industry are you in?</h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    This helps us tailor your ERP to your business
+                  <h1 className="font-display text-2xl font-bold">What type of business do you run?</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    GrowLabs configures your workspace and eliminates irrelevant features.
                   </p>
 
-                  <div className="mt-6 flex flex-col gap-3">
+                  <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[380px] overflow-y-auto pr-1">
                     {industries.map((ind) => (
                       <button
                         key={ind.id}
@@ -207,274 +227,243 @@ export default function DiscoveryPage() {
                           if (errors.industry) setErrors({ ...errors, industry: '' })
                         }}
                         className={cn(
-                          'rounded-lg border p-4 text-left transition-colors',
+                          'flex flex-col justify-between rounded-xl border p-3 text-left transition-all duration-200 cursor-pointer',
                           state.industry === ind.id
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/40 hover:bg-muted/30',
+                            ? 'border-primary bg-primary/10 shadow-md shadow-primary/15'
+                            : 'border-border/80 bg-card/40 hover:border-primary/40 hover:bg-card',
                         )}
                       >
-                        <p className="font-medium">{ind.label}</p>
-                        <p className="mt-1 text-xs text-muted-foreground">{ind.description}</p>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="flex size-7.5 items-center justify-center rounded-lg bg-white/[0.05] border border-white/10 text-accent">
+                            <ind.icon className="size-3.5" />
+                          </span>
+                          <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                            {ind.tag}
+                          </span>
+                        </div>
+                        <div>
+                          <p className="font-display text-xs font-bold text-foreground">{ind.label}</p>
+                          <p className="mt-0.5 text-[10px] leading-snug text-muted-foreground line-clamp-2">
+                            {ind.description}
+                          </p>
+                        </div>
                       </button>
                     ))}
                   </div>
+
+                  {/* Custom Other Form */}
+                  {state.industry === 'other' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-4 rounded-xl border border-accent/40 bg-accent/5 p-3.5 space-y-2.5"
+                    >
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-accent">
+                        <Sparkles className="size-3.5" />
+                        <span>Tell Us About Your Unique Business:</span>
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-foreground mb-1">
+                          Business Name or Industry Sector:
+                        </label>
+                        <input
+                          type="text"
+                          value={state.customIndustryName || ''}
+                          onChange={(e) => {
+                            update({ customIndustryName: e.target.value })
+                            if (errors.customIndustryName) setErrors({ ...errors, customIndustryName: '' })
+                          }}
+                          placeholder="E.g., Solar Installation, 3D Printing Lab, Specialty Ceramics"
+                          className="w-full rounded-lg border border-border bg-background/80 px-3 py-2 text-xs outline-none focus:border-primary text-foreground"
+                        />
+                        {errors.customIndustryName && (
+                          <p className="text-[10px] text-destructive mt-1">{errors.customIndustryName}</p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-[11px] font-semibold text-foreground mb-1">
+                          What is your primary product or service workflow?
+                        </label>
+                        <input
+                          type="text"
+                          value={state.industryDetails.customWorkflow || ''}
+                          onChange={(e) => update({ industryDetails: { ...state.industryDetails, customWorkflow: e.target.value } })}
+                          placeholder="E.g., We design custom molds, order raw resin, cure, and ship to B2B clients"
+                          className="w-full rounded-lg border border-border bg-background/80 px-3 py-2 text-xs outline-none focus:border-primary text-foreground"
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+
                   {errors.industry && <p className="mt-3 text-xs text-destructive">{errors.industry}</p>}
                 </div>
               )}
 
-              {/* Step 1: Specifications (Dynamic) */}
+              {/* Step 1: Store & Operational Specifics */}
               {step === 1 && (
                 <div>
-                  <h1 className="font-display text-2xl font-bold">
-                    {state.industry === 'manufacturing' && 'Manufacturing Specs'}
-                    {state.industry === 'retail' && 'Retail Specs'}
-                    {state.industry === 'services' && 'Service Specs'}
-                    {state.industry === 'distribution' && 'Distribution Specs'}
-                    {state.industry === 'agriculture' && 'Agriculture Specs'}
-                    {state.industry === 'construction' && 'Construction Specs'}
-                    {!state.industry && 'Business Specs'}
-                  </h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    Tailoring GrowLabs for your operational workflows
+                  <h1 className="font-display text-2xl font-bold">Configure operational capabilities</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Select the key tools and rules your staff needs on a daily basis:
                   </p>
 
-                  <div className="mt-6 space-y-5 max-h-[320px] overflow-y-auto pr-1">
-                    {state.industry === 'manufacturing' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5">What do you manufacture?</label>
-                          <input
-                            type="text"
-                            value={state.industryDetails.manufactureType || ''}
-                            onChange={(e) => update({ industryDetails: { ...state.industryDetails, manufactureType: e.target.value } })}
-                            placeholder="E.g., Water pumps, machinery, electronics"
-                            className={cn(
-                              'w-full rounded-lg border bg-background/60 px-3 py-2 text-sm outline-none transition-colors focus:border-primary',
-                              errors.manufactureType ? 'border-destructive' : 'border-border'
-                            )}
-                          />
-                          {errors.manufactureType && <p className="text-xs text-destructive mt-1">{errors.manufactureType}</p>}
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium mb-1.5">Plants</label>
+                  <div className="mt-5 space-y-4 max-h-[340px] overflow-y-auto pr-1">
+                    {/* Rental Outlets (Costume, Library, Equipment, Events) */}
+                    {(state.industry === 'costume_rental' || state.industry === 'library' || state.industry === 'equipment_rental' || state.industry === 'event_rental') && (
+                      <div className="rounded-xl border border-purple-500/20 bg-purple-500/5 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-purple-400 uppercase tracking-wide">Rental & Circulation Engine</span>
+                        {[
+                          { id: 'depositEscrow', label: 'Security deposit hold & escrow refund tracking' },
+                          { id: 'returnAlarms', label: 'Automated return due-date WhatsApp reminders' },
+                          { id: 'autoLateFines', label: 'Auto-calculate per-day overdue late fee penalties' },
+                          { id: 'itemInspection', label: 'Return condition inspection (Clean, Damaged, Needs Wash)' },
+                          { id: 'qrTagCheck', label: 'Fast barcode / QR check-out and check-in scanner' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
                             <input
-                              type="number"
-                              value={state.industryDetails.plantCount || ''}
-                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, plantCount: e.target.value } })}
-                              placeholder="E.g., 2"
-                              className="w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary"
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-purple-400 focus:ring-purple-400 size-4"
                             />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium mb-1.5">Warehouses</label>
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Clothing/Fashion Specific */}
+                    {state.industry === 'clothing' && (
+                      <div className="rounded-xl border border-primary/20 bg-primary/5 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-primary uppercase tracking-wide">Fashion Matrix</span>
+                        {[
+                          { id: 'variantMatrix', label: 'Size (XS, S, M, L, XL) & Color variant grid' },
+                          { id: 'barcodeTags', label: 'Print custom clothing price barcode tags' },
+                          { id: 'seasonalSales', label: 'Seasonal discount promotions & offers' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
                             <input
-                              type="number"
-                              value={state.industryDetails.warehouseCount || ''}
-                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, warehouseCount: e.target.value } })}
-                              placeholder="E.g., 3"
-                              className="w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary"
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-primary focus:ring-primary size-4"
                             />
-                          </div>
-                        </div>
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium">Production Capabilities</label>
-                          {[
-                            { id: 'useBom', label: 'We use Bill of Materials (BOM)' },
-                            { id: 'trackRawMaterials', label: 'We track raw materials inventory' },
-                            { id: 'trackBatches', label: 'We track batches / lot numbers' },
-                            { id: 'trackSerials', label: 'We track serial numbers' },
-                            { id: 'performQA', label: 'We perform quality inspections' },
-                            { id: 'manageCapacity', label: 'We manage production capacity' }
-                          ].map((proc) => (
-                            <button
-                              key={proc.id}
-                              type="button"
-                              onClick={() => update({ industryDetails: { ...state.industryDetails, [proc.id]: !state.industryDetails[proc.id] } })}
-                              className={cn(
-                                'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
-                                state.industryDetails[proc.id]
-                                  ? 'border-primary bg-primary/10'
-                                  : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'size-4 rounded border transition-colors',
-                                  state.industryDetails[proc.id]
-                                    ? 'border-primary bg-primary'
-                                    : 'border-border',
-                                )}
-                              />
-                              <span className="text-sm font-medium">{proc.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
                     )}
 
-                    {state.industry === 'retail' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5">Retail Channels</label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {['Online Only', 'Brick & Mortar', 'Omnichannel'].map((ch) => (
-                              <button
-                                key={ch}
-                                type="button"
-                                onClick={() => {
-                                  update({ industryDetails: { ...state.industryDetails, retailChannel: ch } })
-                                  if (errors.retailChannel) setErrors({ ...errors, retailChannel: '' })
-                                }}
-                                className={cn(
-                                  'rounded-lg border py-2 text-xs transition-colors font-medium',
-                                  state.industryDetails.retailChannel === ch
-                                    ? 'border-primary bg-primary/10 text-foreground'
-                                    : 'border-border text-muted-foreground hover:border-primary/40'
-                                )}
-                              >
-                                {ch}
-                              </button>
-                            ))}
-                          </div>
-                          {errors.retailChannel && <p className="text-xs text-destructive mt-1.5">{errors.retailChannel}</p>}
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5">POS System Used</label>
-                          <input
-                            type="text"
-                            value={state.industryDetails.posSystem || ''}
-                            onChange={(e) => update({ industryDetails: { ...state.industryDetails, posSystem: e.target.value } })}
-                            placeholder="E.g., Square, Shopify POS, Clover"
-                            className="w-full rounded-lg border border-border bg-background/60 px-3 py-2 text-sm outline-none focus:border-primary"
-                          />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium">Logistics Details</label>
-                          {[
-                            { id: 'shipThirdParty', label: 'We ship via UPS, FedEx, or DHL' },
-                            { id: 'hasOwnDelivery', label: 'We manage our own delivery team' },
-                            { id: 'use3pl', label: 'We use a 3rd Party Logistics (3PL) provider' }
-                          ].map((log) => (
-                            <button
-                              key={log.id}
-                              type="button"
-                              onClick={() => update({ industryDetails: { ...state.industryDetails, [log.id]: !state.industryDetails[log.id] } })}
-                              className={cn(
-                                'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
-                                state.industryDetails[log.id]
-                                  ? 'border-primary bg-primary/10'
-                                  : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'size-4 rounded border transition-colors',
-                                  state.industryDetails[log.id]
-                                    ? 'border-primary bg-primary'
-                                    : 'border-border',
-                                )}
-                              />
-                              <span className="text-sm font-medium">{log.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
+                    {/* Pharmacy Specific */}
+                    {state.industry === 'pharmacy' && (
+                      <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-emerald-400 uppercase tracking-wide">Pharmacy & Healthcare</span>
+                        {[
+                          { id: 'saltMatrix', label: 'Drug generic composition & chemical salt substitutes' },
+                          { id: 'expiryAlarms', label: 'Strict batch expiration date warnings at checkout' },
+                          { id: 'doctorRx', label: 'Doctor prescription & Schedule H drug dispensing logs' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-emerald-400 focus:ring-emerald-400 size-4"
+                            />
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
                     )}
 
-                    {state.industry === 'services' && (
-                      <>
-                        <div>
-                          <label className="block text-sm font-medium mb-1.5">Billing Model</label>
-                          <div className="grid grid-cols-3 gap-2">
-                            {['Hourly Rate', 'Fixed Price', 'Monthly Retainer'].map((m) => (
-                              <button
-                                key={m}
-                                type="button"
-                                onClick={() => {
-                                  update({ industryDetails: { ...state.industryDetails, billingModel: m } })
-                                  if (errors.billingModel) setErrors({ ...errors, billingModel: '' })
-                                }}
-                                className={cn(
-                                  'rounded-lg border py-2 text-xs transition-colors font-medium',
-                                  state.industryDetails.billingModel === m
-                                    ? 'border-primary bg-primary/10 text-foreground'
-                                    : 'border-border text-muted-foreground hover:border-primary/40'
-                                )}
-                              >
-                                {m}
-                              </button>
-                            ))}
-                          </div>
-                          {errors.billingModel && <p className="text-xs text-destructive mt-1.5">{errors.billingModel}</p>}
-                        </div>
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium">Service Delivery</label>
-                          {[
-                            { id: 'hasFieldTechs', label: 'We dispatch technicians to field locations' },
-                            { id: 'needsScheduling', label: 'We require booking & scheduling tools' },
-                            { id: 'trackContracts', label: 'We manage service level agreements (SLAs)' }
-                          ].map((srv) => (
-                            <button
-                              key={srv.id}
-                              type="button"
-                              onClick={() => update({ industryDetails: { ...state.industryDetails, [srv.id]: !state.industryDetails[srv.id] } })}
-                              className={cn(
-                                'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
-                                state.industryDetails[srv.id]
-                                  ? 'border-primary bg-primary/10'
-                                  : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'size-4 rounded border transition-colors',
-                                  state.industryDetails[srv.id]
-                                    ? 'border-primary bg-primary'
-                                    : 'border-border',
-                                )}
-                              />
-                              <span className="text-sm font-medium">{srv.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
+                    {/* Automobile Specific */}
+                    {state.industry === 'automobile' && (
+                      <div className="rounded-xl border border-blue-500/20 bg-blue-500/5 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-blue-400 uppercase tracking-wide">Auto & Spare Parts</span>
+                        {[
+                          { id: 'fitmentMatrix', label: 'Vehicle Make / Model / Year compatibility search' },
+                          { id: 'jobCards', label: 'Workshop repair job cards & mechanic labor times' },
+                          { id: 'oemPartLookup', label: 'OEM part number cross-referencing' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-blue-400 focus:ring-blue-400 size-4"
+                            />
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
                     )}
 
-                    {(state.industry !== 'manufacturing' && state.industry !== 'retail' && state.industry !== 'services') && (
-                      <>
-                        <div className="space-y-2">
-                          <label className="block text-sm font-medium">Operational Specifics</label>
-                          {[
-                            { id: 'hasFleet', label: 'We manage our own delivery fleet/equipment' },
-                            { id: 'trackBatches', label: 'We track inventory batches / lots' },
-                            { id: 'tempControlled', label: 'We require temperature control' },
-                            { id: 'siteTracking', label: 'We require multi-site/project tracking' }
-                          ].map((spec) => (
-                            <button
-                              key={spec.id}
-                              type="button"
-                              onClick={() => update({ industryDetails: { ...state.industryDetails, [spec.id]: !state.industryDetails[spec.id] } })}
-                              className={cn(
-                                'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
-                                state.industryDetails[spec.id]
-                                  ? 'border-primary bg-primary/10'
-                                  : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'size-4 rounded border transition-colors',
-                                  state.industryDetails[spec.id]
-                                    ? 'border-primary bg-primary'
-                                    : 'border-border',
-                                )}
-                              />
-                              <span className="text-sm font-medium">{spec.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      </>
+                    {/* Restaurant Specific */}
+                    {state.industry === 'restaurant' && (
+                      <div className="rounded-xl border border-accent/20 bg-accent/5 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-accent uppercase tracking-wide">Kitchen & Recipes</span>
+                        {[
+                          { id: 'recipeDeduction', label: 'Auto-deduct raw ingredients as dishes are sold' },
+                          { id: 'kitchenDisplay', label: 'Kitchen Order Ticket (KOT) display' },
+                          { id: 'dailyWastage', label: 'Daily wastage & spoilage tracking' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-accent focus:ring-accent size-4"
+                            />
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* General Retail & Supermarket */}
+                    {(state.industry === 'retail_shop' || state.industry === 'supermarket' || state.industry === 'mall_store' || state.industry === 'jewelry') && (
+                      <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-foreground uppercase tracking-wide">POS & Checkout</span>
+                        {[
+                          { id: 'mobileScan', label: 'Phone/Tablet camera barcode scanning (zero hardware cost)' },
+                          { id: 'whatsappBill', label: '1-Click WhatsApp & SMS digital receipts' },
+                          { id: 'customerCredit', label: 'Customer credit ledger (Khata / Pay Later)' },
+                          { id: 'multiStore', label: 'Transfer stock between multiple outlets' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-primary focus:ring-primary size-4"
+                            />
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Manufacturing & Distribution */}
+                    {(state.industry === 'manufacturing' || state.industry === 'distribution' || state.industry === 'construction' || state.industry === 'other') && (
+                      <div className="rounded-xl border border-border bg-card/40 p-3.5 space-y-2">
+                        <span className="text-xs font-bold text-foreground uppercase tracking-wide">Operations & Workflows</span>
+                        {[
+                          { id: 'multiBom', label: 'Multi-level Bill of Materials (BOM) & assembly sequencing' },
+                          { id: 'lotTrace', label: 'Batch / Lot number traceability & expiry tracking' },
+                          { id: 'multiDc', label: 'Multi-warehouse inter-branch transfers' },
+                          { id: 'supplierRfqs', label: 'Automated Purchase Orders & supplier scorecards' },
+                        ].map((item) => (
+                          <label key={item.id} className="flex items-center gap-2.5 text-xs text-foreground cursor-pointer">
+                            <input
+                              type="checkbox"
+                              defaultChecked
+                              onChange={(e) => update({ industryDetails: { ...state.industryDetails, [item.id]: e.target.checked } })}
+                              className="rounded text-primary focus:ring-primary size-4"
+                            />
+                            <span>{item.label}</span>
+                          </label>
+                        ))}
+                      </div>
                     )}
                   </div>
                 </div>
@@ -483,12 +472,12 @@ export default function DiscoveryPage() {
               {/* Step 2: Challenges */}
               {step === 2 && (
                 <div>
-                  <h1 className="font-display text-2xl font-bold">What are your biggest challenges?</h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    Select all that apply, then describe your #1 problem
+                  <h1 className="font-display text-2xl font-bold">What is your biggest daily struggle?</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Select your friction points and describe your main bottleneck:
                   </p>
 
-                  <div className="mt-6 space-y-2 max-h-[180px] overflow-y-auto">
+                  <div className="mt-4 space-y-2 max-h-[170px] overflow-y-auto pr-1">
                     {painPoints.map((point) => (
                       <button
                         key={point}
@@ -501,245 +490,126 @@ export default function DiscoveryPage() {
                           if (errors.painPoints) setErrors({ ...errors, painPoints: '' })
                         }}
                         className={cn(
-                          'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
+                          'flex w-full items-center gap-2.5 rounded-lg border p-2.5 text-left text-xs transition-colors cursor-pointer',
                           state.painPoints.includes(point)
                             ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/40 hover:bg-muted/30',
+                            : 'border-border bg-card/40 hover:border-primary/40',
                         )}
                       >
                         <div
                           className={cn(
-                            'size-4 rounded border transition-colors',
+                            'size-3.5 rounded border transition-colors flex items-center justify-center shrink-0',
                             state.painPoints.includes(point)
-                              ? 'border-primary bg-primary'
+                              ? 'border-primary bg-primary text-primary-foreground'
                               : 'border-border',
                           )}
-                        />
-                        <span className="text-sm font-medium">{point}</span>
+                        >
+                          {state.painPoints.includes(point) && <Check className="size-2.5" />}
+                        </div>
+                        <span className="font-medium text-foreground">{point}</span>
                       </button>
                     ))}
                   </div>
 
-                  <div className="mt-4 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium">Describe your #1 business problem</label>
-                      <span className="text-[11px] text-muted-foreground">Natural Language AI Parser</span>
-                    </div>
+                  <div className="mt-4 space-y-1.5">
+                    <label className="text-xs font-semibold text-foreground">Describe in plain words (AI Auto-Parser):</label>
                     <textarea
                       value={state.goals}
                       onChange={(e) => {
                         update({ goals: e.target.value })
                         if (errors.goals) setErrors({ ...errors, goals: '' })
                       }}
-                      placeholder="E.g., We often receive large orders but don't know whether we have enough raw material to produce them."
-                      className={cn(
-                        'w-full rounded-lg border bg-background/60 px-3 py-2 text-sm outline-none transition-colors focus:border-primary',
-                        errors.goals ? 'border-destructive' : 'border-border',
-                      )}
-                      rows={3}
+                      placeholder="E.g., We rent bridal dresses and equipment, but keeping track of return dates, customer deposits, and damage fines takes hours on spreadsheets."
+                      className="w-full rounded-xl border border-white/10 bg-background/80 p-3 text-xs outline-none focus:border-primary text-foreground"
+                      rows={2.5}
                     />
                     {errors.goals && <p className="text-xs text-destructive">{errors.goals}</p>}
-
-                    {/* Quick suggestion chips */}
-                    <div className="flex flex-wrap gap-1.5 pt-1">
-                      <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold py-1">Quick Try:</span>
-                      {[
-                        'We receive large orders without raw material visibility',
-                        'Frequent stockouts & delayed supplier deliveries',
-                        'Manual invoicing and slow payment tracking'
-                      ].map((prompt) => (
-                        <button
-                          key={prompt}
-                          type="button"
-                          onClick={() => update({ goals: prompt })}
-                          className="rounded-md border border-border/80 bg-background/40 px-2 py-0.5 text-[11px] text-muted-foreground hover:border-primary hover:text-primary transition-colors text-left"
-                        >
-                          {prompt}
-                        </button>
-                      ))}
-                    </div>
-
-                    {/* Live AI Decoded Intent Badge */}
-                    {state.goals.trim().length > 10 && (
-                      <div className="mt-3 rounded-lg border border-primary/30 bg-primary/5 p-3 text-xs animate-in fade-in slide-in-from-top-1">
-                        <div className="flex items-center gap-1.5 font-semibold text-primary">
-                          <span className="inline-block size-2 rounded-full bg-primary animate-pulse" />
-                          <span>GrowLabs AI Decoded Architecture:</span>
-                        </div>
-                        <div className="mt-1.5 flex flex-wrap gap-1">
-                          {state.goals.toLowerCase().includes('order') && <span className="rounded bg-primary/15 text-primary px-2 py-0.5 text-[11px] font-medium">🛒 Sales Order Intelligence</span>}
-                          {(state.goals.toLowerCase().includes('raw') || state.goals.toLowerCase().includes('material') || state.goals.toLowerCase().includes('stockout')) && <span className="rounded bg-accent/20 text-accent px-2 py-0.5 text-[11px] font-medium">📦 Inventory & BOM</span>}
-                          {(state.goals.toLowerCase().includes('produce') || state.goals.toLowerCase().includes('production')) && <span className="rounded bg-warning/20 text-warning px-2 py-0.5 text-[11px] font-medium">⚡ Production Scheduling</span>}
-                          {(state.goals.toLowerCase().includes('supplier') || state.goals.toLowerCase().includes('deliver')) && <span className="rounded bg-success/20 text-success px-2 py-0.5 text-[11px] font-medium">🤝 Procurement Lead Times</span>}
-                          {(state.goals.toLowerCase().includes('invoice') || state.goals.toLowerCase().includes('payment')) && <span className="rounded bg-primary/15 text-primary px-2 py-0.5 text-[11px] font-medium">💳 Finance & Cash Flow</span>}
-                        </div>
-                      </div>
-                    )}
                   </div>
-                  
-                  {errors.painPoints && <p className="mt-3 text-xs text-destructive">{errors.painPoints}</p>}
                 </div>
               )}
 
-              {/* Step 3: Priorities */}
+              {/* Step 3: Operations & Scale */}
               {step === 3 && (
                 <div>
-                  <h1 className="font-display text-2xl font-bold">What matters most?</h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    What would have the biggest impact on your business right now?
+                  <h1 className="font-display text-2xl font-bold">Current operations & scale</h1>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    Helps us calibrate database throughput and seed starter inventory data.
                   </p>
 
-                  <div className="mt-6 flex flex-col gap-3">
-                    {priorities.map((pri) => (
-                      <button
-                        key={pri.id}
-                        type="button"
-                        onClick={() => {
-                          const updated = state.priorities.includes(pri.id)
-                            ? state.priorities.filter((p) => p !== pri.id)
-                            : [...state.priorities, pri.id]
-                          update({ priorities: updated })
-                          if (errors.priorities) setErrors({ ...errors, priorities: '' })
-                        }}
-                        className={cn(
-                          'flex items-start gap-3 rounded-lg border p-4 text-left transition-colors',
-                          state.priorities.includes(pri.id)
-                            ? 'border-primary bg-primary/10'
-                            : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            'mt-1 size-4 shrink-0 rounded border transition-colors',
-                            state.priorities.includes(pri.id)
-                              ? 'border-primary bg-primary'
-                              : 'border-border',
-                          )}
-                        />
-                        <div>
-                          <p className="font-medium">{pri.label}</p>
-                          <p className="mt-1 text-xs text-muted-foreground">{pri.description}</p>
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                  {errors.priorities && <p className="mt-3 text-xs text-destructive">{errors.priorities}</p>}
-                </div>
-              )}
-
-              {/* Step 4: Operations */}
-              {step === 4 && (
-                <div>
-                  <h1 className="font-display text-2xl font-bold">Tell us about your operations</h1>
-                  <p className="mt-1.5 text-sm text-muted-foreground">
-                    This helps us understand your scale
-                  </p>
-
-                  <div className="mt-6 space-y-6">
-                    {/* Current Tools */}
+                  <div className="mt-5 space-y-4">
                     <div>
-                      <label className="mb-3 block text-sm font-medium">Current systems (select all)</label>
-                      <div className="space-y-2">
-                        {currentTools.map((tool) => (
+                      <label className="mb-2 block text-xs font-semibold text-foreground">Current bookkeeping tool</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {currentTools.slice(0, 4).map((tool) => (
                           <button
                             key={tool}
                             type="button"
-                            onClick={() => {
-                              const updated = state.currentTools.includes(tool)
-                                ? state.currentTools.filter((t) => t !== tool)
-                                : [...state.currentTools, tool]
-                              update({ currentTools: updated })
-                              if (errors.currentTools) setErrors({ ...errors, currentTools: '' })
-                            }}
+                            onClick={() => update({ currentTools: [tool] })}
                             className={cn(
-                              'flex w-full items-center gap-3 rounded-lg border p-3 text-left transition-colors',
+                              'rounded-lg border p-2 text-left text-xs transition-colors font-medium cursor-pointer',
                               state.currentTools.includes(tool)
-                                ? 'border-primary bg-primary/10'
-                                  : 'border-border hover:border-primary/40 hover:bg-muted/30',
-                              )}
-                            >
-                              <div
-                                className={cn(
-                                  'size-4 rounded border transition-colors',
-                                  state.currentTools.includes(tool)
-                                    ? 'border-primary bg-primary'
-                                    : 'border-border',
-                                )}
-                              />
-                              <span className="text-sm">{tool}</span>
-                            </button>
-                          ))}
-                        </div>
-                        {errors.currentTools && <p className="mt-2 text-xs text-destructive">{errors.currentTools}</p>}
+                                ? 'border-primary bg-primary/10 text-foreground'
+                                : 'border-border bg-card/40 text-muted-foreground hover:border-primary/40',
+                            )}
+                          >
+                            {tool}
+                          </button>
+                        ))}
                       </div>
-  
-                      {/* Monthly Volume */}
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className="mb-2 block text-sm font-medium">Orders or transactions per month</label>
+                        <label className="mb-1 block text-xs font-semibold text-foreground">Monthly Bills / Orders</label>
                         <input
                           type="text"
                           value={state.monthlyOrders}
-                          onChange={(e) => {
-                            update({ monthlyOrders: e.target.value })
-                            if (errors.monthlyOrders) setErrors({ ...errors, monthlyOrders: '' })
-                          }}
-                          placeholder="E.g., 500, 2-5k, 50k+"
-                          className={cn(
-                            'w-full rounded-lg border bg-background/60 px-3 py-2 text-sm outline-none transition-colors focus:border-primary',
-                            errors.monthlyOrders ? 'border-destructive' : 'border-border',
-                          )}
+                          onChange={(e) => update({ monthlyOrders: e.target.value })}
+                          placeholder="E.g., 300 bills, 2,000 orders"
+                          className="w-full rounded-lg border border-border bg-background/80 p-2.5 text-xs outline-none focus:border-primary text-foreground"
                         />
-                        {errors.monthlyOrders && <p className="mt-1.5 text-xs text-destructive">{errors.monthlyOrders}</p>}
                       </div>
-  
-                      {/* Team Size */}
                       <div>
-                        <label className="mb-2 block text-sm font-medium">Team size</label>
+                        <label className="mb-1 block text-xs font-semibold text-foreground">Staff / Cashiers</label>
                         <input
                           type="text"
                           value={state.teamCount}
-                          onChange={(e) => {
-                            update({ teamCount: e.target.value })
-                            if (errors.teamCount) setErrors({ ...errors, teamCount: '' })
-                          }}
-                          placeholder="E.g., 5, 10-20, 50+"
-                          className={cn(
-                            'w-full rounded-lg border bg-background/60 px-3 py-2 text-sm outline-none transition-colors focus:border-primary',
-                            errors.teamCount ? 'border-destructive' : 'border-border',
-                          )}
+                          onChange={(e) => update({ teamCount: e.target.value })}
+                          placeholder="E.g., 1-3, 5-10"
+                          className="w-full rounded-lg border border-border bg-background/80 p-2.5 text-xs outline-none focus:border-primary text-foreground"
                         />
-                        {errors.teamCount && <p className="mt-1.5 text-xs text-destructive">{errors.teamCount}</p>}
                       </div>
                     </div>
                   </div>
-                )}
+                </div>
+              )}
             </motion.div>
           </AnimatePresence>
 
-          {/* Navigation */}
-          <div className="mt-8 flex items-center gap-3">
+          {/* Navigation Controls */}
+          <div className="mt-8 flex items-center gap-3 border-t border-white/10 pt-4">
             {step > 0 && (
-              <Button variant="outline" size="lg" className="h-11" onClick={back}>
-                <ArrowLeft className="size-4" data-icon="inline-start" />
+              <Button variant="outline" size="sm" className="h-10 px-4 text-xs" onClick={back}>
+                <ArrowLeft className="size-3.5" data-icon="inline-start" />
                 Back
               </Button>
             )}
             {step < steps.length - 1 ? (
-              <Button size="lg" className="h-11 flex-1" onClick={next}>
+              <Button size="sm" className="h-10 flex-1 text-xs font-semibold" onClick={next}>
                 Continue
-                <ArrowRight className="size-4" data-icon="inline-end" />
+                <ArrowRight className="size-3.5" data-icon="inline-end" />
               </Button>
             ) : (
-              <Button size="lg" className="h-11 flex-1" onClick={finish} disabled={submitting}>
+              <Button size="sm" className="h-10 flex-1 text-xs font-bold" onClick={finish} disabled={submitting}>
                 {submitting ? (
                   <>
-                    <Loader2 className="size-4 animate-spin" data-icon="inline-start" />
-                    Analyzing…
+                    <Loader2 className="size-3.5 animate-spin" data-icon="inline-start" />
+                    Synthesizing Custom ERP Blueprint…
                   </>
                 ) : (
                   <>
-                    Start AI Analysis
-                    <ArrowRight className="size-4" data-icon="inline-end" />
+                    Build My Tailored ERP
+                    <ArrowRight className="size-3.5" data-icon="inline-end" />
                   </>
                 )}
               </Button>

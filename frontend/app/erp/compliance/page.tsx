@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'motion/react'
 import {
   ShieldCheck,
   Lock,
@@ -15,6 +16,9 @@ import {
   RefreshCw,
   Eye,
   Layers,
+  Sparkles,
+  Shield,
+  Fingerprint,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -26,7 +30,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { cn } from '@/lib/utils'
+import { SpotlightCard } from '@/components/animated/spotlight-card'
+import { ShimmerButton } from '@/components/animated/shimmer-button'
+import { TiltCard } from '@/components/animated/tilt-card'
+import confetti from 'canvas-confetti'
 import { toast } from 'sonner'
 
 interface AuditEvent {
@@ -43,7 +50,7 @@ interface AuditEvent {
 const AUDIT_LOGS: AuditEvent[] = [
   {
     id: 'evt-88912',
-    timestamp: '2026-09-23 00:54:12 UTC',
+    timestamp: '2026-09-30 19:42:12 UTC',
     user: 'jordan.reyes@company.com',
     action: 'PO-3390 Approved ($22,000 Precision Bearings)',
     module: 'Procurement Ledger',
@@ -53,7 +60,7 @@ const AUDIT_LOGS: AuditEvent[] = [
   },
   {
     id: 'evt-88911',
-    timestamp: '2026-09-23 00:48:05 UTC',
+    timestamp: '2026-09-30 19:38:05 UTC',
     user: 'autonomous-agent-supply-chain',
     action: 'Reorder Point Adjusted: Steel Sheet A36 → 700 units',
     module: 'Inventory Engine',
@@ -63,7 +70,7 @@ const AUDIT_LOGS: AuditEvent[] = [
   },
   {
     id: 'evt-88910',
-    timestamp: '2026-09-23 00:32:41 UTC',
+    timestamp: '2026-09-30 19:22:41 UTC',
     user: 'dana.whitfield@company.com',
     action: 'MO-2205 Completed: 150 Water Pump Motors',
     module: 'Manufacturing Line A',
@@ -73,7 +80,7 @@ const AUDIT_LOGS: AuditEvent[] = [
   },
   {
     id: 'evt-88909',
-    timestamp: '2026-09-22 23:14:20 UTC',
+    timestamp: '2026-09-30 19:14:20 UTC',
     user: 'rachel.kim@company.com',
     action: 'Invoice INV-2099 Marked Paid ($68,800 Coastal Ag)',
     module: 'Treasury & Accounts',
@@ -83,7 +90,7 @@ const AUDIT_LOGS: AuditEvent[] = [
   },
   {
     id: 'evt-88908',
-    timestamp: '2026-09-22 21:05:11 UTC',
+    timestamp: '2026-09-30 18:55:11 UTC',
     user: 'sec-guard-autonomous',
     action: 'Dual-Factor Verification Check Succeeded for Tenant Admin',
     module: 'IAM Security',
@@ -96,6 +103,7 @@ const AUDIT_LOGS: AuditEvent[] = [
 export default function CompliancePage() {
   const [logs, setLogs] = useState<AuditEvent[]>(AUDIT_LOGS)
   const [search, setSearch] = useState('')
+  const [verifyingId, setVerifyingId] = useState<string | null>(null)
 
   const filteredLogs = logs.filter(
     (l) =>
@@ -106,65 +114,140 @@ export default function CompliancePage() {
   )
 
   const handleExportPackage = () => {
+    confetti({
+      particleCount: 80,
+      spread: 70,
+      origin: { y: 0.7 },
+      colors: ['#38bdf8', '#a855f7', '#34d399'],
+    })
     toast.success('Compliance Audit Package Exported (Cryptographically Signed JSON/CSV)', {
       description: 'Audit report contains 100% verified SHA-256 block hashes for SOC 2 Type II audit.',
     })
   }
 
-  const handleVerifyHash = (hash: string) => {
-    toast.success(`Hash Chain Verified: ${hash.slice(0, 16)}…`, {
-      description: 'Zero tampering detected. Cryptographic block integrity confirmed.',
-    })
+  const handleVerifyHash = (id: string, hash: string) => {
+    setVerifyingId(id)
+    setTimeout(() => {
+      setVerifyingId(null)
+      confetti({
+        particleCount: 50,
+        spread: 60,
+        origin: { y: 0.8 },
+        colors: ['#34d399', '#38bdf8'],
+      })
+      toast.success(`Block Integrity Confirmed: ${hash.slice(0, 16)}…`, {
+        description: 'Zero tampering detected across Merkle root chain.',
+      })
+    }, 600)
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4 sm:p-6 max-w-[1600px] mx-auto">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="relative flex flex-col gap-8 p-4 sm:p-8 max-w-[1600px] mx-auto min-h-screen">
+      {/* Background ambient lighting */}
+      <div className="pointer-events-none absolute -top-20 right-10 -z-10 size-96 rounded-full bg-primary/15 blur-[120px]" />
+      <div className="pointer-events-none absolute top-1/3 left-10 -z-10 size-96 rounded-full bg-accent/10 blur-[130px]" />
+
+      {/* Header Banner */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 border-b border-white/10 pb-6">
         <div>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-semibold mb-2">
-            <ShieldCheck className="size-3.5" />
-            GrowLabs Cryptographic Compliance Vault
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-primary/20 via-accent/15 to-transparent border border-primary/30 text-primary text-xs font-semibold mb-3 shadow-sm">
+            <ShieldCheck className="size-4 text-accent animate-pulse" />
+            <span>Cryptographic Trust Engine & Merkle Audit Trail</span>
+            <span className="h-1.5 w-1.5 rounded-full bg-success" />
+            <span className="text-[11px] text-success">Live Immutable Ledger</span>
           </div>
-          <h1 className="text-3xl font-bold font-display text-foreground">
-            Compliance & Immutable Audit Ledger
+          <h1 className="text-3xl sm:text-4xl font-bold font-display text-foreground tracking-tight">
+            Compliance & Cryptographic Vault
           </h1>
-          <p className="text-muted-foreground text-sm mt-1">
-            Tamper-evident SHA-256 cryptographic audit logs, SOC 2 Type II readiness, and continuous compliance monitoring.
+          <p className="text-muted-foreground text-sm mt-1.5 max-w-3xl leading-relaxed">
+            Every ERP transaction, BOM edit, and financial transfer is hashed into an immutable Merkle tree with continuous automated SOC 2 Type II controls.
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button onClick={handleExportPackage} className="gap-2 font-semibold">
-            <Download className="size-4" /> Export Signed Audit Package
-          </Button>
+        <div className="flex items-center gap-3">
+          <ShimmerButton
+            onClick={handleExportPackage}
+            className="h-11 px-5 text-xs font-semibold"
+          >
+            <Download className="size-4" />
+            <span>Export Signed Audit Package</span>
+          </ShimmerButton>
         </div>
       </div>
 
       {/* Compliance Certification Badges */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         {[
-          { name: 'SOC 2 Type II Certified', desc: 'Continuous automated control testing active', status: 'Passed (100%)', color: 'text-success' },
-          { name: 'ISO 27001 / ISMS', desc: 'Information security management audited', status: 'Compliant', color: 'text-success' },
-          { name: 'GDPR / CCPA Framework', desc: 'Encrypted multi-region data residency', status: 'Enforced', color: 'text-success' },
-          { name: 'FDA 21 CFR Part 11', desc: 'Digital signatures & lot immutable audit trail', status: 'Active', color: 'text-primary' },
+          {
+            name: 'SOC 2 Type II Certified',
+            desc: 'Continuous automated control testing active 24/7',
+            status: 'Passed (100%)',
+            icon: ShieldCheck,
+            spotlight: 'rgba(52, 211, 153, 0.22)',
+            border: 'rgba(52, 211, 153, 0.5)',
+          },
+          {
+            name: 'ISO 27001 / ISMS',
+            desc: 'Multi-tenant cryptographic data separation audited',
+            status: 'Fully Compliant',
+            icon: Lock,
+            spotlight: 'rgba(120, 119, 240, 0.22)',
+            border: 'rgba(147, 130, 255, 0.5)',
+          },
+          {
+            name: 'GDPR & Regional Residency',
+            desc: 'Zero-knowledge encrypted multi-region database shards',
+            status: 'Enforced',
+            icon: Database,
+            spotlight: 'rgba(56, 189, 248, 0.22)',
+            border: 'rgba(56, 189, 248, 0.5)',
+          },
+          {
+            name: 'FDA 21 CFR Part 11',
+            desc: 'Electronic signatures & tamper-evident batch records',
+            status: 'Active Audit Trail',
+            icon: Fingerprint,
+            spotlight: 'rgba(168, 85, 247, 0.22)',
+            border: 'rgba(168, 85, 247, 0.5)',
+          },
         ].map((c, i) => (
-          <div key={i} className="rounded-3xl border border-border bg-card/40 p-5 space-y-2 shadow-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold font-display text-foreground">{c.name}</span>
-              <CheckCircle2 className="size-4 text-success" />
-            </div>
-            <p className="text-xs text-muted-foreground">{c.desc}</p>
-            <div className="pt-2 border-t border-border/40 text-[11px] font-mono font-bold text-success">
-              Status: {c.status}
-            </div>
-          </div>
+          <motion.div
+            key={c.name}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: i * 0.08 }}
+          >
+            <SpotlightCard
+              spotlightColor={c.spotlight}
+              borderColor={c.border}
+              className="h-full p-5 flex flex-col justify-between"
+            >
+              <div>
+                <div className="flex items-center justify-between mb-3">
+                  <span className="flex size-9 items-center justify-center rounded-xl bg-white/[0.05] border border-white/10 text-accent">
+                    <c.icon className="size-4.5" />
+                  </span>
+                  <div className="flex items-center gap-1 rounded-full bg-success/15 px-2.5 py-0.5 text-[11px] font-semibold text-success">
+                    <CheckCircle2 className="size-3" />
+                    <span>Verified</span>
+                  </div>
+                </div>
+                <h3 className="text-sm font-bold font-display text-foreground">{c.name}</h3>
+                <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{c.desc}</p>
+              </div>
+
+              <div className="pt-3 mt-4 border-t border-white/5 flex items-center justify-between text-[11px] font-mono">
+                <span className="text-muted-foreground">Status</span>
+                <span className="font-bold text-success">{c.status}</span>
+              </div>
+            </SpotlightCard>
+          </motion.div>
         ))}
       </div>
 
-      {/* Audit Log Table */}
+      {/* Audit Log Table Section */}
       <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-card/40 border border-border p-4 rounded-3xl">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-card/60 backdrop-blur-xl border border-white/10 p-4 rounded-2xl shadow-xl">
           <div className="relative flex-1 max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <input
@@ -172,41 +255,57 @@ export default function CompliancePage() {
               placeholder="Search audit events by action, user, or SHA-256 hash…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full bg-background border border-border rounded-xl pl-10 pr-4 py-2 text-xs outline-none focus:border-primary font-medium"
+              className="w-full bg-background/80 border border-white/10 rounded-xl pl-10 pr-4 py-2.5 text-xs text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-1 focus:ring-primary/40 font-medium transition-all"
             />
           </div>
-          <Badge variant="outline" className="text-xs font-mono">
-            Immutable Hash Chain: Active
-          </Badge>
+          <div className="flex items-center gap-3">
+            <Badge variant="outline" className="text-xs font-mono border-white/15 bg-white/[0.03] px-3 py-1 text-accent">
+              <span className="size-1.5 rounded-full bg-success mr-2 animate-ping" />
+              Merkle Root #8942-A8 Active
+            </Badge>
+          </div>
         </div>
 
-        <div className="rounded-3xl border border-border overflow-hidden bg-card/20 shadow-xl">
+        <div className="rounded-2xl border border-white/10 overflow-hidden bg-card/40 backdrop-blur-xl shadow-2xl">
           <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Event ID</TableHead>
-                <TableHead>UTC Timestamp</TableHead>
-                <TableHead>User / Daemon</TableHead>
-                <TableHead>Action Log</TableHead>
-                <TableHead>Module</TableHead>
-                <TableHead>SHA-256 Cryptographic Hash</TableHead>
-                <TableHead className="text-center">Integrity Status</TableHead>
-                <TableHead className="text-right">Audit Verification</TableHead>
+            <TableHeader className="bg-white/[0.02]">
+              <TableRow className="border-white/10">
+                <TableHead className="text-xs font-semibold text-foreground">Event ID</TableHead>
+                <TableHead className="text-xs font-semibold text-foreground">UTC Timestamp</TableHead>
+                <TableHead className="text-xs font-semibold text-foreground">Principal / Agent</TableHead>
+                <TableHead className="text-xs font-semibold text-foreground">Operation Log</TableHead>
+                <TableHead className="text-xs font-semibold text-foreground">Subsystem</TableHead>
+                <TableHead className="text-xs font-semibold text-foreground">SHA-256 Hash</TableHead>
+                <TableHead className="text-center text-xs font-semibold text-foreground">Block Status</TableHead>
+                <TableHead className="text-right text-xs font-semibold text-foreground">Verification</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredLogs.map((log) => (
-                <TableRow key={log.id} className="hover:bg-muted/30">
+                <TableRow key={log.id} className="border-white/5 hover:bg-white/[0.04] transition-colors">
                   <TableCell className="font-mono text-xs font-bold text-primary">{log.id}</TableCell>
                   <TableCell className="font-mono text-xs text-muted-foreground">{log.timestamp}</TableCell>
-                  <TableCell className="font-semibold text-xs">{log.user}</TableCell>
-                  <TableCell className="text-xs font-medium text-foreground">{log.action}</TableCell>
+                  <TableCell className="font-semibold text-xs text-foreground flex items-center gap-1.5">
+                    {log.user.includes('agent') ? (
+                      <span className="inline-flex size-5 items-center justify-center rounded bg-accent/20 text-accent text-[10px]">
+                        AI
+                      </span>
+                    ) : (
+                      <span className="inline-flex size-5 items-center justify-center rounded bg-primary/20 text-primary text-[10px]">
+                        US
+                      </span>
+                    )}
+                    <span>{log.user}</span>
+                  </TableCell>
+                  <TableCell className="text-xs font-medium text-foreground max-w-[280px]">
+                    {log.action}
+                  </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] font-mono">
+                    <Badge variant="outline" className="text-[10px] font-mono border-white/10 bg-white/[0.03]">
                       {log.module}
                     </Badge>
                   </TableCell>
-                  <TableCell className="font-mono text-[10px] text-muted-foreground truncate max-w-[140px]">
+                  <TableCell className="font-mono text-[10px] text-muted-foreground/80 truncate max-w-[140px]" title={log.sha256Hash}>
                     {log.sha256Hash}
                   </TableCell>
                   <TableCell className="text-center">
@@ -218,10 +317,21 @@ export default function CompliancePage() {
                     <Button
                       size="sm"
                       variant="outline"
-                      className="text-xs py-1 px-2.5 h-7"
-                      onClick={() => handleVerifyHash(log.sha256Hash)}
+                      disabled={verifyingId === log.id}
+                      className="text-xs py-1 px-3 h-8 border-white/10 bg-white/[0.02] hover:bg-primary/20 hover:border-primary/40 transition-all font-medium"
+                      onClick={() => handleVerifyHash(log.id, log.sha256Hash)}
                     >
-                      Verify Hash
+                      {verifyingId === log.id ? (
+                        <>
+                          <RefreshCw className="size-3 animate-spin mr-1" />
+                          <span>Auditing...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Shield className="size-3 mr-1 text-accent" />
+                          <span>Verify Block</span>
+                        </>
+                      )}
                     </Button>
                   </TableCell>
                 </TableRow>

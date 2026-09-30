@@ -21,6 +21,9 @@ import {
   ShieldCheck,
   Palette,
   Settings as SettingsIcon,
+  Sliders,
+  Cpu,
+  Repeat,
 } from 'lucide-react'
 import { Logo } from '@/components/brand/logo'
 import { cn } from '@/lib/utils'
@@ -31,20 +34,22 @@ import { Badge } from '@/components/ui/badge'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Overview', href: '/dashboard' },
-  { icon: Package, label: 'Inventory', href: '/erp/inventory', moduleId: 'inventory' },
-  { icon: ShoppingCart, label: 'Sales', href: '/erp/sales', moduleId: 'sales' },
+  { icon: Package, label: 'Inventory & Stock', href: '/erp/inventory', moduleId: 'inventory' },
+  { icon: ShoppingCart, label: 'Sales & POS', href: '/erp/sales', moduleId: 'sales' },
+  { icon: Repeat, label: 'Rental & Circulation', href: '/erp/rental-ops', badge: 'Rental Pro' },
   { icon: TrendingUp, label: 'Procurement', href: '/erp/procurement', moduleId: 'procurement' },
   { icon: Factory, label: 'Production', href: '/erp/production', moduleId: 'production' },
-  { icon: Wrench, label: 'Quality', href: '/erp/quality', moduleId: 'quality' },
-  { icon: Wallet, label: 'Finance', href: '/erp/finance', moduleId: 'finance' },
-  { icon: Users, label: 'HR', href: '/erp/hr', moduleId: 'hr' },
-  { icon: Truck, label: 'Logistics', href: '/erp/logistics', moduleId: 'logistics' },
-  { icon: BarChart3, label: 'Analytics', href: '/erp/analytics', moduleId: 'analytics' },
+  { icon: Wrench, label: 'Quality & Expiry', href: '/erp/quality', moduleId: 'quality' },
+  { icon: Wallet, label: 'Finance & Ledger', href: '/erp/finance', moduleId: 'finance' },
+  { icon: Users, label: 'HR & Workforce', href: '/erp/hr', moduleId: 'hr' },
+  { icon: Truck, label: 'Logistics & Fleet', href: '/erp/logistics', moduleId: 'logistics' },
+  { icon: BarChart3, label: 'Analytics BI', href: '/erp/analytics', moduleId: 'analytics' },
   { icon: Sparkles, label: 'AI Copilot', href: '/erp/ai-copilot', moduleId: 'ai' },
+  { icon: Cpu, label: 'Custom Feature Studio', href: '/erp/custom-features', badge: 'AI Builder' },
   { icon: Workflow, label: 'Automation', href: '/erp/automation' },
   { icon: Globe, label: 'Marketplace', href: '/erp/marketplace' },
   { icon: ShieldCheck, label: 'Compliance Vault', href: '/erp/compliance' },
-  { icon: SettingsIcon, label: 'Settings', href: '/erp/settings' },
+  { icon: SettingsIcon, label: 'Rental & Settings', href: '/erp/settings' },
 ]
 
 export function Sidebar({ mobile = false, open = true, onClose }: { mobile?: boolean; open?: boolean; onClose?: () => void }) {
@@ -103,14 +108,21 @@ export function Sidebar({ mobile = false, open = true, onClose }: { mobile?: boo
                 href={item.href}
                 onClick={mobile ? onClose : undefined}
                 className={cn(
-                  'flex items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium transition-all',
+                  'flex items-center justify-between rounded-xl px-3 py-2 text-xs font-medium transition-all group',
                   isActive
                     ? 'bg-primary/15 text-primary font-semibold shadow-sm'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/50',
                 )}
               >
-                <Icon className="size-4 shrink-0" />
-                <span>{item.label}</span>
+                <div className="flex items-center gap-3">
+                  <Icon className="size-4 shrink-0" />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className="rounded-full bg-accent/20 border border-accent/40 px-1.5 py-0.2 text-[9px] font-bold text-accent">
+                    {item.badge}
+                  </span>
+                )}
               </Link>
             )
           })}
@@ -122,7 +134,7 @@ export function Sidebar({ mobile = false, open = true, onClose }: { mobile?: boo
           </div>
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/50"
+            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground hover:bg-muted/50 cursor-pointer"
           >
             <LogOut className="size-4 shrink-0" />
             <span>Log Out</span>

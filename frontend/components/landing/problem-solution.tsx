@@ -1,74 +1,103 @@
 'use client'
 
-import { Check, X } from 'lucide-react'
-import { Reveal } from '@/components/animated/reveal'
+import { Check, X, ArrowRight, Sparkles } from 'lucide-react'
 import { SectionHeading } from '@/components/landing/section-heading'
+import { SpotlightCard } from '@/components/animated/spotlight-card'
+import { motion } from 'motion/react'
 
 const rows = [
   {
-    problem: 'Months of implementation and costly consultants',
-    solution: 'A working ERP in days — GrowLabs configures itself around you',
+    problem: '18-month multi-million implementation delays & bloated consultant armies',
+    solution: 'Live operational ERP in under 3 days — AI synthesizes data models autonomously',
   },
   {
-    problem: 'Hundreds of features you never use, cluttering every screen',
-    solution: 'Only the modules your business actually needs, nothing else',
+    problem: 'Hundreds of redundant menus, 40-tab screens, and bloated legacy features',
+    solution: 'Zero software bloat — exclusively the modules & telemetry your teams use daily',
   },
   {
-    problem: 'Rigid workflows that force you to change how you work',
-    solution: 'Workflows shaped to how your teams already operate',
+    problem: 'Rigid workflows that force your business into an inflexible vendor mold',
+    solution: 'Neural workflows calibrated dynamically around your existing shop-floor practices',
   },
   {
-    problem: 'Static reports that tell you what already happened',
-    solution: 'AI that predicts what happens next and tells you what to do',
+    problem: 'Stale retrospective PDF reports explaining why revenue was missed last quarter',
+    solution: 'Predictive neural radar detecting supplier shortfalls & cash gaps 14 days ahead',
   },
   {
-    problem: 'Per-seat pricing that punishes you for growing',
-    solution: 'Modular pricing — pay for capabilities, scale on your terms',
+    problem: 'Aggressive per-seat penalty fees that penalize you as headcount scales',
+    solution: 'Transparent modular capacity pricing — unlimited user seats with zero lock-in',
   },
 ]
 
 export function ProblemSolution() {
   return (
-    <section id="problem" className="relative py-20 sm:py-28">
+    <section id="problem" className="relative py-24 sm:py-32 overflow-hidden">
+      {/* Background radial glow */}
+      <div className="pointer-events-none absolute top-1/3 right-10 -z-10 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[140px]" />
+
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <SectionHeading
-          eyebrow="The Problem"
+          eyebrow="The Paradigm Shift"
           title={
             <>
-              Traditional ERPs weren&apos;t built for <span className="text-gradient">how you work</span>
+              Legacy ERP was engineered for 1995.{' '}
+              <span className="text-gradient">GrowLabs is built for autonomous scale.</span>
             </>
           }
-          description="Legacy systems force your business into their mold. GrowLabs flips that — the platform molds itself around your business."
+          description="Traditional monolithic platforms force your enterprise into rigid vendor templates. GrowLabs reverses the equation: our neural engine shapes itself around your business."
         />
 
-        <div className="mx-auto mt-14 max-w-4xl">
-          <div className="mb-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="hidden items-center gap-2 px-2 sm:flex">
-              <span className="text-sm font-semibold text-muted-foreground">Traditional ERP</span>
+        <div className="mx-auto mt-16 max-w-5xl">
+          {/* Column Header Titles */}
+          <div className="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 px-2">
+            <div className="flex items-center gap-2">
+              <span className="flex size-2 rounded-full bg-destructive" />
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Legacy Monoliths (SAP / NetSuite)
+              </span>
             </div>
-            <div className="hidden items-center gap-2 px-2 sm:flex">
-              <span className="text-sm font-semibold text-accent">GrowLabs</span>
+            <div className="flex items-center gap-2">
+              <span className="flex size-2 rounded-full bg-accent animate-pulse" />
+              <span className="text-xs font-bold uppercase tracking-wider text-accent">
+                GrowLabs Autonomous ERP
+              </span>
             </div>
           </div>
 
-          <div className="flex flex-col gap-3">
+          {/* Comparison Cards */}
+          <div className="flex flex-col gap-3.5">
             {rows.map((row, i) => (
-              <Reveal key={i} delay={i * 0.06}>
-                <div className="group grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  <div className="flex items-start gap-3 rounded-xl border border-border bg-card/40 p-4">
-                    <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
-                      <X className="size-3" />
-                    </span>
-                    <p className="text-sm text-muted-foreground line-through/0">{row.problem}</p>
-                  </div>
-                  <div className="flex items-start gap-3 rounded-xl border border-primary/25 bg-primary/[0.07] p-4 transition-colors group-hover:border-primary/40">
-                    <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-success/15 text-success">
-                      <Check className="size-3" />
-                    </span>
-                    <p className="text-sm font-medium text-foreground">{row.solution}</p>
-                  </div>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-30px' }}
+                transition={{ duration: 0.4, delay: i * 0.07 }}
+                className="group grid grid-cols-1 gap-3 sm:grid-cols-2"
+              >
+                {/* Legacy Problem Card */}
+                <div className="flex items-start gap-3.5 rounded-2xl border border-white/5 bg-card/40 p-4.5 backdrop-blur-md transition-colors group-hover:border-destructive/25">
+                  <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-destructive/15 text-destructive">
+                    <X className="size-3" />
+                  </span>
+                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                    {row.problem}
+                  </p>
                 </div>
-              </Reveal>
+
+                {/* GrowLabs Solution Spotlight */}
+                <SpotlightCard
+                  spotlightColor="rgba(56, 189, 248, 0.2)"
+                  borderColor="rgba(56, 189, 248, 0.45)"
+                  className="flex items-start gap-3.5 p-4.5 bg-primary/[0.08] border-primary/30"
+                >
+                  <span className="mt-0.5 inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-success/20 text-success shadow-sm">
+                    <Check className="size-3 font-bold" />
+                  </span>
+                  <p className="text-xs sm:text-sm font-medium text-foreground leading-relaxed">
+                    {row.solution}
+                  </p>
+                </SpotlightCard>
+              </motion.div>
             ))}
           </div>
         </div>

@@ -2,17 +2,30 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 
-export type CompanySize = '1-10' | '11-50' | '51-200' | '201-1000' | '1000+'
+export type CompanySize = '1-5 (Micro/Solo)' | '6-20 (Small Team)' | '21-100 (Growing)' | '101-500 (Mid-Enterprise)' | '500+ (Industrial Scale)'
 
 export type IndustryId =
-  | 'manufacturing'
+  | 'retail_shop'
+  | 'supermarket'
+  | 'mall_store'
+  | 'clothing'
+  | 'restaurant'
+  | 'services'
   | 'distribution'
-  | 'retail'
+  | 'manufacturing'
+  | 'pharmacy'
+  | 'automobile'
   | 'agriculture'
   | 'construction'
-  | 'services'
+  | 'jewelry'
+  | 'library'
+  | 'costume_rental'
+  | 'equipment_rental'
+  | 'event_rental'
+  | 'other'
 
 export type ModuleId =
+  | 'pos'
   | 'inventory'
   | 'sales'
   | 'production'
@@ -22,8 +35,24 @@ export type ModuleId =
   | 'hr'
   | 'quality'
   | 'logistics'
+  | 'recipes'
+  | 'whatsapp'
+  | 'rental_ops'
+  | 'custom_features'
 
-export type Priority = 'inventory' | 'cost' | 'growth' | 'compliance' | 'visibility' | 'automation'
+export type Priority = 'pos' | 'inventory' | 'cost' | 'growth' | 'compliance' | 'visibility' | 'automation' | 'recipes' | 'rentals' | 'custom'
+
+export type RentalDuration = '30_days' | '3_months' | '6_months' | '1_year'
+
+export interface CustomFeature {
+  id: string
+  title: string
+  description: string
+  category: string
+  schemaFields: string[]
+  status: 'ACTIVE' | 'DRAFT'
+  createdAt: string
+}
 
 export interface OnboardingState {
   // account
@@ -35,6 +64,10 @@ export interface OnboardingState {
   role: string
   companySize: CompanySize | null
   industry: IndustryId | null
+  customIndustryName?: string
+  // rental duration
+  rentalDuration: RentalDuration
+  trialActive: boolean
   // discovery
   goals: string
   painPoints: string[]
@@ -44,6 +77,7 @@ export interface OnboardingState {
   teamCount: string
   // requirements
   selectedModules: ModuleId[]
+  customFeatures: CustomFeature[]
   // industry details
   industryDetails: Record<string, any>
   // meta
@@ -58,6 +92,9 @@ const DEFAULT_STATE: OnboardingState = {
   role: '',
   companySize: null,
   industry: null,
+  customIndustryName: '',
+  rentalDuration: '30_days',
+  trialActive: true,
   goals: '',
   painPoints: [],
   priorities: [],
@@ -65,6 +102,7 @@ const DEFAULT_STATE: OnboardingState = {
   monthlyOrders: '',
   teamCount: '',
   selectedModules: [],
+  customFeatures: [],
   industryDetails: {},
   completedSteps: [],
 }
