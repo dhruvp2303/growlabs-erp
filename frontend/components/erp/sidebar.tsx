@@ -72,7 +72,7 @@ export function Sidebar({ mobile = false, open = true, onClose }: { mobile?: boo
 
   const classes = mobile
     ? cn(
-        'fixed inset-y-0 left-0 z-40 w-64 border-r border-border bg-background transition-transform duration-300 flex flex-col',
+        'fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r border-border bg-background/95 backdrop-blur-xl shadow-2xl transition-transform duration-300 flex flex-col',
         open ? 'translate-x-0' : '-translate-x-full',
       )
     : 'hidden lg:flex flex-col w-64 border-r border-border bg-card/40'
@@ -81,15 +81,26 @@ export function Sidebar({ mobile = false, open = true, onClose }: { mobile?: boo
     <>
       {mobile && open && (
         <div
-          className="fixed inset-0 z-30 bg-black/50"
+          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity"
           onClick={onClose}
         />
       )}
       <div className={classes}>
         <div className="flex flex-col gap-2 border-b border-border px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Logo />
-            <span className="text-xs font-bold text-primary tracking-wider uppercase">ERP PRO</span>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Logo />
+              <span className="text-xs font-bold text-primary tracking-wider uppercase">ERP PRO</span>
+            </div>
+            {mobile && (
+              <button
+                onClick={onClose}
+                className="p-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+                aria-label="Close sidebar"
+              >
+                <LogOut className="size-4 rotate-180" />
+              </button>
+            )}
           </div>
           <div className="pt-1">
             <Badge variant="outline" className="text-[10px] font-mono text-muted-foreground w-full justify-center truncate">

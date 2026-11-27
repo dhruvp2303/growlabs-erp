@@ -36,6 +36,7 @@ import { cn } from '@/lib/utils'
 import { formatCurrency } from '@/lib/format'
 import { toast } from 'sonner'
 import { SmartOrderIntelligence } from '@/components/erp/smart-order-intelligence'
+import { ErpInteractiveWorkflowPanel } from '@/components/erp/erp-interactive-workflow-panel'
 
 export default function SalesPage() {
   const [orders, setOrders] = useState<Order[]>([])
@@ -206,6 +207,9 @@ export default function SalesPage() {
           </div>
         </div>
       </div>
+
+      {/* Interactive ERP Workflow Engine (Order Decision -> Production -> Notifications -> Password-Protected Vault) */}
+      <ErpInteractiveWorkflowPanel />
 
       {/* Tabs */}
       <div className="flex border-b border-border gap-2">

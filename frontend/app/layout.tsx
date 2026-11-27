@@ -1,23 +1,11 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
-import { Inter, Manrope } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import { OnboardingProvider } from '@/lib/onboarding/store'
 import { PersonalizationProvider } from '@/lib/personalization/personalization-provider'
+import { ErpWorkflowProvider } from '@/lib/workflow/erp-workflow-provider'
 import { CursorFollower } from '@/components/animated/cursor-follower'
 import './globals.css'
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap',
-})
-
-const manrope = Manrope({
-  subsets: ['latin'],
-  variable: '--font-manrope',
-  display: 'swap',
-})
 
 export const metadata: Metadata = {
   title: 'GrowLabs — Pro Enterprise AI-Powered Personalized ERP',
@@ -36,6 +24,9 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
   colorScheme: 'dark',
   themeColor: '#12162a',
 }
@@ -46,14 +37,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${manrope.variable} bg-background`}>
+    <html lang="en" className="bg-background">
       <body className="font-sans antialiased selection:bg-primary/30 selection:text-white">
         <CursorFollower />
         <OnboardingProvider>
           <PersonalizationProvider>
-            {children}
-            <Toaster position="top-right" />
-            {process.env.NODE_ENV === 'production' && <Analytics />}
+            <ErpWorkflowProvider>
+              {children}
+              <Toaster position="top-right" />
+              {process.env.NODE_ENV === 'production' && <Analytics />}
+            </ErpWorkflowProvider>
           </PersonalizationProvider>
         </OnboardingProvider>
       </body>

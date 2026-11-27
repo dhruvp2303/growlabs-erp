@@ -1,14 +1,16 @@
 'use client'
 
 import { useState, useEffect, useRef, useMemo } from 'react'
-import { Bell, Search, MessageSquare, User, Menu, X, ArrowRight, CornerDownLeft, Sparkles, Palette, Globe, ShieldCheck } from 'lucide-react'
+import { Bell, Search, MessageSquare, User, Menu, X, ArrowRight, CornerDownLeft, Sparkles, Palette, Globe, ShieldCheck, Lock, Unlock, ShieldAlert } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import { products, customers, orders, suppliers } from '@/lib/mock/data'
 import { useRouter } from 'next/navigation'
 import { usePersonalization } from '@/lib/personalization/personalization-provider'
+import { useErpWorkflow, Role } from '@/lib/workflow/erp-workflow-provider'
 import { PersonalizationStudioModal } from '@/components/erp/personalization-studio-modal'
+import { SecureInvoiceModal } from '@/components/erp/secure-invoice-modal'
 
 interface TopNavProps {
   onMenuClick?: () => void
@@ -17,8 +19,14 @@ interface TopNavProps {
 export function TopNav({ onMenuClick }: TopNavProps) {
   const router = useRouter()
   const { profile } = usePersonalization()
+  const { notifications, activeRole, markNotificationRead, setActiveRole } = useErpWorkflow()
   const [profileOpen, setProfileOpen] = useState(false)
   const [studioOpen, setStudioOpen] = useState(false)
+  const [vaultOpen, setVaultOpen] = useState(false)
+  const [notifDropdownOpen, setNotifDropdownOpen] = useState(false)
+
+  // Unread notifications targeting this role
+  const unreadCount = notifications.filter((n) => n.targetRoles.includes(activeRole) && !n.readBy.includes(activeRole)).length
 
   // Command Palette Overlay state
   const [paletteOpen, setPaletteOpen] = useState(false)
@@ -146,10 +154,10 @@ export function TopNav({ onMenuClick }: TopNavProps) {
           {/* Search trigger button */}
           <button
             onClick={() => setPaletteOpen(true)}
-            className="flex items-center gap-2.5 rounded-xl border border-border bg-muted/40 px-3.5 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all sm:w-64 text-left"
+            className="flex items-center gap-2 rounded-xl border border-border bg-muted/40 px-2.5 sm:px-3.5 py-1.5 text-xs text-muted-foreground hover:border-primary/40 hover:text-foreground transition-all w-36 sm:w-64 text-left"
           >
-            <Search className="size-4 text-muted-foreground" />
-            <span className="flex-1">Search catalog, orders, AI…</span>
+            <Search className="size-4 shrink-0 text-muted-foreground" />
+            <span className="flex-1 truncate">Search ERP…</span>
             <kbd className="hidden sm:inline-flex h-5 items-center gap-0.5 rounded border border-border bg-background px-1.5 font-mono text-[9px] font-medium text-muted-foreground shadow-sm">
               Ctrl K
             </kbd>
@@ -158,6 +166,17 @@ export function TopNav({ onMenuClick }: TopNavProps) {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2">
+          {/* Secure Vault Button (Bills & Invoices) */}
+          <button
+            onClick={() => setVaultOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-amber-400 transition-all hover:bg-amber-500/20"
+            title="Password-Protected Invoices & Bills Vault"
+          >
+            <Lock className="size-3.5 text-amber-400" />
+            <span className="hidden sm:inline">Bills & Invoices</span>
+            <span className="sm:hidden">Vault</span>
+          </button>
+
           {/* Hyper-Personalization Studio Launcher */}
           <button
             onClick={() => setStudioOpen(true)}
@@ -167,17 +186,82 @@ export function TopNav({ onMenuClick }: TopNavProps) {
             <span>Studio</span>
           </button>
 
-          {/* Notifications */}
-          <button
-            onClick={() => router.push('/erp/ai-copilot')}
-            className="relative inline-flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
-            aria-label="Notifications"
-          >
-            <Bell className="size-4" />
-            <span className="absolute right-1 top-1 inline-flex size-4.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-              3
-            </span>
-          </button>
+          {/* Notifications Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setNotifDropdownOpen(!notifDropdownOpen)}
+              className="relative inline-flex size-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:text-foreground hover:bg-muted"
+              aria-label="Notifications"
+            >
+              <Bell className="size-4" />
+              {unreadCount > 0 && (
+                <span className="absolute right-1 top-1 inline-flex size-4.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground animate-pulse">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {notifDropdownOpen && (
+              <div className="absolute right-0 top-full z-50 mt-2 w-80 sm:w-96 rounded-2xl border border-border bg-card shadow-2xl p-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between border-b border-border pb-2.5 mb-2 px-1">
+                  <div className="flex items-center gap-2">
+                    <Bell className="size-4 text-primary" />
+                    <span className="text-xs font-bold text-foreground">ERP Live Notifications</span>
+                  </div>
+                  <Badge variant="outline" className="text-[9px] font-mono uppercase">
+                    Role: {activeRole}
+                  </Badge>
+                </div>
+
+                <div className="space-y-1.5 max-h-72 overflow-y-auto">
+                  {notifications.filter((n) => n.targetRoles.includes(activeRole)).length === 0 ? (
+                    <div className="p-4 text-center text-xs text-muted-foreground">
+                      No notifications for role &quot;{activeRole}&quot;.
+                    </div>
+                  ) : (
+                    notifications
+                      .filter((n) => n.targetRoles.includes(activeRole))
+                      .map((n) => {
+                        const isUnread = !n.readBy.includes(activeRole)
+                        return (
+                          <div
+                            key={n.id}
+                            onClick={() => {
+                              markNotificationRead(n.id)
+                              if (n.actionUrl) {
+                                setNotifDropdownOpen(false)
+                                router.push(n.actionUrl)
+                              }
+                            }}
+                            className={`p-2.5 rounded-xl border text-xs cursor-pointer transition-colors ${
+                              isUnread
+                                ? 'bg-primary/10 border-primary/30 text-foreground font-medium'
+                                : 'bg-background/40 border-border/40 text-muted-foreground hover:bg-muted/40'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between gap-1 mb-1">
+                              <span className="font-bold text-[11px] truncate">{n.title}</span>
+                              <span className="text-[9px] font-mono opacity-70 shrink-0">{n.timestamp}</span>
+                            </div>
+                            <p className="text-[11px] leading-relaxed line-clamp-2">{n.message}</p>
+                          </div>
+                        )
+                      })
+                  )}
+                </div>
+
+                <div className="pt-2 mt-2 border-t border-border flex items-center justify-between text-[11px]">
+                  <span className="text-muted-foreground">Logged in as {activeRole.toUpperCase()}</span>
+                  <button
+                    onClick={() => { setNotifDropdownOpen(false); router.push('/erp/sales'); }}
+                    className="text-primary font-semibold hover:underline"
+                  >
+                    Open Workflow Hub &rarr;
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* AI Assistant */}
           <button
@@ -238,6 +322,9 @@ export function TopNav({ onMenuClick }: TopNavProps) {
 
       {/* Personalization Studio Modal */}
       <PersonalizationStudioModal open={studioOpen} onClose={() => setStudioOpen(false)} />
+
+      {/* Password-Protected Bills & Invoices Vault Modal */}
+      <SecureInvoiceModal open={vaultOpen} onClose={() => setVaultOpen(false)} />
 
       {/* CTRL+K Search Overlay Modal */}
       {paletteOpen && (

@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { ErpInteractiveWorkflowPanel } from '@/components/erp/erp-interactive-workflow-panel'
 
 export default function ProductionPage() {
   const [productionOrders, setProductionOrders] = useState<ProductionOrder[]>([])
@@ -206,6 +207,9 @@ export default function ProductionPage() {
           </div>
         </div>
       </div>
+
+      {/* Interactive ERP Workflow Engine (Order Decision -> Production -> Notifications -> Password-Protected Vault) */}
+      <ErpInteractiveWorkflowPanel />
 
       {/* Tabs */}
       <div className="flex border-b border-border gap-2">
